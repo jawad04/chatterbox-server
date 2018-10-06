@@ -11,6 +11,10 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var body = {
+  results: []
+};
+
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -29,40 +33,49 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   //console.log('From request On', request.on)
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-  var statusCode
-  var {headers, method, url} = request;
   
-  var data = {
-    results: []
+  
+  var defaultCorsHeaders = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, accept',
+    'access-control-max-age': 10 // Seconds.
   };
   
-
+  var statusCode;
   
-  if(request.method === 'GET') {
-    
-    statusCode = 200;
-    
-    response.writeHead(statusCode);
-    
-    response.end(JSON.stringify(data))
+
+  if (request.method === 'GET') {
+    if (request.url === '/classes/messages') {
+      statusCode = 200;
+      response.writeHead(statusCode);
+      response.end(JSON.stringify(body));
+    } else {
+      statusCode = 404;
+      response.writeHead(statusCode);
+      response.end();
+    }
   }
   
-  if(request.method === "POST") {
+  if (request.method === 'POST') {
+    if (request.url === '/classes/messages') {
+      statusCode = 201;
+      response.writeHead(statusCode);    
+      var requestBody = '';
+      request.on('data', (chunk) => {
+        requestBody += chunk;
+      }).on('end', () => {
+        var result = JSON.parse(requestBody);
+        body.results.push(result);
+        console.log('data', body.results);
+        response.end();
+      });
     
-    statusCode = 201;
-    
-    response.writeHead(statusCode);
-    
-    var requestBody = '';
-    
-    request.on('data', (chunk) => {
-      requestBody += chunk;
-    }).on('end', () => {
-      response.end()
-    })
-    
+    }
   }
+  
 
+  
 
   // The outgoing status.
 
@@ -99,12 +112,7 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
+
 
 exports.requestHandler = requestHandler;
 

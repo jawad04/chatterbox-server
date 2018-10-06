@@ -21,7 +21,7 @@ var FormView = {
       _.extend(message, data);
       Messages.add(message, MessagesView.render);
     });
-      },
+  },
 
   setStatus: function(active) {
     var status = active ? 'true' : null;
