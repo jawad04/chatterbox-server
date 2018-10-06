@@ -1,6 +1,7 @@
 var Parse = {
 
-  server: 'http://127.0.0.1:3000/chatterbox/classes/messages',
+  server: 'http://127.0.0.1:3000/classes/messages',
+  
 
   create: function(message, successCB, errorCB = null) {
 
@@ -20,7 +21,7 @@ var Parse = {
     $.ajax({
       url: Parse.server,
       type: 'GET',
-      data: { order: '-createdAt' },
+      //data: { order: '-createdAt' },
       contentType: 'application/json',
       success: successCB,
       error: errorCB || function(error) {

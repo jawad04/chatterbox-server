@@ -102,5 +102,29 @@ describe('Node Server Request Listener Function', function() {
     expect(res._responseCode).to.equal(404);
     expect(res._ended).to.equal(true);
   });
+  
+  it('Should send messages with a date and id', function() {
+    var stubMsg = {
+      username: 'Peter',
+      text: 'Yes'
+    };
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+    
+    req = new stubs.request('/classes/messages', 'GET');
+    res = new stubs.response();
+    
+    handler.requestHandler(req, res);
+    
+    expect(res._responseCode).to.equal(200);
+    var messages = JSON.parse(res._data).results;
+    expect(res._ended).to.equal(true);
+    expect(messages[0].objectId).to.exist;
+    expect(messages[0].createdAt).to.exist;
+  });
 
 });

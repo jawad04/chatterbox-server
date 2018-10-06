@@ -35,6 +35,8 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   
   
+  
+  
   var defaultCorsHeaders = {
     'access-control-allow-origin': '*',
     'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -42,14 +44,24 @@ var requestHandler = function(request, response) {
     'access-control-max-age': 10 // Seconds.
   };
   
+  var headers = defaultCorsHeaders;
+
+  // Tell the client we are sending them plain text.
+  //
+  // You will need to change this if you are sending something
+  // other than plain text, like JSON or HTML.
+  headers['Content-Type'] = 'application/json';
+  
   var statusCode;
+
   
 
   if (request.method === 'GET') {
     if (request.url === '/classes/messages') {
       statusCode = 200;
-      response.writeHead(statusCode);
+      response.writeHead(statusCode, headers);
       response.end(JSON.stringify(body));
+      console.log(body);
     } else {
       statusCode = 404;
       response.writeHead(statusCode);
@@ -57,22 +69,32 @@ var requestHandler = function(request, response) {
     }
   }
   
+  if (request.method === 'OPTIONS') {
+    statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+  
   if (request.method === 'POST') {
     if (request.url === '/classes/messages') {
       statusCode = 201;
-      response.writeHead(statusCode);    
+      response.writeHead(statusCode, headers);    
       var requestBody = '';
       request.on('data', (chunk) => {
         requestBody += chunk;
       }).on('end', () => {
         var result = JSON.parse(requestBody);
-        body.results.push(result);
-        console.log('data', body.results);
+        result.objectId = Math.floor(Math.random() * 10000000000);
+        result.createdAt = new Date();
+        body.results.unshift(result);
         response.end();
       });
     
     }
   }
+  
+  // _.extend(message, data);
+
   
 
   
@@ -80,13 +102,7 @@ var requestHandler = function(request, response) {
   // The outgoing status.
 
   // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
 
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
   
   
   // .writeHead() writes to the request line and headers of the response,
