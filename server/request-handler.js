@@ -87,7 +87,13 @@ var requestHandler = function(request, response) {
         result.objectId = Math.floor(Math.random() * 10000000000);
         result.createdAt = new Date();
         body.results.unshift(result);
-        response.end();
+        
+        var respondObject = {
+          objectId: result.objectId,
+          createdAt: result.createdAt
+        };
+        
+        response.end(JSON.stringify(respondObject));
       });
     
     }
