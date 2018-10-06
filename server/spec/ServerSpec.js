@@ -150,5 +150,28 @@ describe('Node Server Request Listener Function', function() {
     expect(messages[0].objectId).to.exist;
     expect(messages[0].createdAt).to.exist;
   });
+  
+  it('Should respond with the right headers when receiving an Options request', function() {
+    var stubMsg = {
+      username: 'Peter',
+      text: 'Yes'
+    };
+    var req = new stubs.request('/classes/messages', 'OPTIONS', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    
+    console.log(res);
+    
+    expect(res._responseCode).to.equal(200);
+    expect(res._headers).to.eql({
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'access-control-allow-headers': 'content-type, accept',
+      'access-control-max-age': 10, // Seconds.
+      'Content-Type': 'application/json'
+    });
+
+  });
 
 });
